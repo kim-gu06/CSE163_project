@@ -1,9 +1,10 @@
 """
 CSE 163
 Kimberly Gu
-Homework 1
-
+This script reads the Student Social Media Addition datase
+and print summary statistics
 """
+import pandas as pd
 
 
 def total(n):
@@ -99,3 +100,62 @@ def text_normalize(text):
         if lower_char in alphabet:
             result += lower_char
     return result
+
+
+def main():
+    # Load dataset
+    df = pd.read_csv("Project/Students Social Media Addiction.csv")
+
+    # Open output text file
+    with open("summary_output.txt", "w") as f:
+
+        # =========================
+        # Quantitative Variables
+        # =========================
+        numeric_cols = df.select_dtypes(include=["int64", "float64"])
+
+        f.write("QUANTITATIVE VARIABLE SUMMARIES\n")
+        f.write("=" * 40 + "\n\n")
+
+        for col in numeric_cols.columns:
+            f.write(f"Variable: {col}\n")
+
+            mean = df[col].mean()
+            std = df[col].std()
+            minimum = df[col].min()
+            q1 = df[col].quantile(0.25)
+            median = df[col].median()
+            q3 = df[col].quantile(0.75)
+            maximum = df[col].max()
+
+            f.write(f"Mean: {mean}\n")
+            f.write(f"Standard Deviation: {std}\n")
+            f.write(f"Minimum: {minimum}\n")
+            f.write(f"First Quartile (Q1): {q1}\n")
+            f.write(f"Median: {median}\n")
+            f.write(f"Third Quartile (Q3): {q3}\n")
+            f.write(f"Maximum: {maximum}\n")
+            f.write("-" * 40 + "\n\n")
+
+        # =========================
+        # Categorical Variables
+        # =========================
+        categorical_cols = df.select_dtypes(include=["object"])
+
+        f.write("\nCATEGORICAL VARIABLE SUMMARIES\n")
+        f.write("=" * 40 + "\n")
+
+        for col in categorical_cols.columns:
+            f.write(f"Variable: {col}\n")
+
+            counts = df[col].value_counts()
+
+            for value, count in counts.items():
+                f.write(f"{value}: {count}\n")
+
+            f.write("-" * 40 + "\n")
+
+
+if __name__ == "__main__":
+    main()
+
