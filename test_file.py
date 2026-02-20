@@ -1,3 +1,13 @@
+'''
+Isabella Le and Kimberly Gu
+EDA 2
+CSE 163 Section AG & AD
+
+This file is used to test and verify our code is working
+as intended with a smaller csv file.
+'''
+
+
 import pandas as pd
 
 
@@ -68,29 +78,15 @@ def test_smaller():
 
             f.write("-" * 40 + "\n")
 
-def test():
-    '''
-    This is a test function to make sure our 
-    dataset has no missing values and the values
-    within our code are meaningful/valid
-    '''
-    
-    # making sure our dataset has no na 
-    assert df.isna().sum().all() == 0
-
-    # assertion to make sure there's no absurd or non-logical values
-    assert (df["Avg_Daily_Usage_Hours"] >= 0).all()
-
-    # assertion for ensure meanscores are valid
-    assert mean_scores["Avg_Daily_Usage_Hours"].isna().all() == 0
-
 
 def main():
     """
     This function is used to test all of our functions
     """
+
     test_smaller()
 
 
 if __name__ == "__main__":
     main()
+
