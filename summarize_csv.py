@@ -1,4 +1,6 @@
 """
+Kimberly Gu and Isabella Le
+Section AD & AG 
 summarize_csv.py
 CSE 163 EDA-Data Processing
 
