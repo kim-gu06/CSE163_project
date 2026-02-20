@@ -68,6 +68,22 @@ def test_smaller():
 
             f.write("-" * 40 + "\n")
 
+def test():
+    '''
+    This is a test function to make sure our 
+    dataset has no missing values and the values
+    within our code are meaningful/valid
+    '''
+    
+    # making sure our dataset has no na 
+    assert df.isna().sum().all() == 0
+
+    # assertion to make sure there's no absurd or non-logical values
+    assert (df["Avg_Daily_Usage_Hours"] >= 0).all()
+
+    # assertion for ensure meanscores are valid
+    assert mean_scores["Avg_Daily_Usage_Hours"].isna().all() == 0
+
 
 def main():
     """
