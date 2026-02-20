@@ -1,5 +1,4 @@
 """
-Kimberly Gu and Isabella Le
 summarize_csv.py
 CSE 163 EDA-Data Processing
 
@@ -8,7 +7,7 @@ Reads a CSV file and writes a summary of each variable to a text file.
 import pandas as pd
 
 
-def total(numbers):
+def total(numbers: list[float]) -> float:
     """
     Takes in a number n (int) and returns the sum of the numbers from
     0(inclusive) to n (inclusive). If n is negative, returns None.
@@ -19,7 +18,7 @@ def total(numbers):
     return result
 
 
-def median(numbers):
+def median(numbers: list[float]) -> float:
     """
     Given a list of numbers, returns the median as float or integer.
     Assumptions:
@@ -39,7 +38,9 @@ def median(numbers):
     return result
 
 
-def five_number_summary(numbers):
+def five_number_summary(
+    numbers: list[float]
+) -> tuple[float, float, float, float, float]:
     """
     Given a sorted list of numbers, returns a tuple of the five-number
     summary: the minimum, first quartile, median, third quartile,
@@ -62,14 +63,14 @@ def five_number_summary(numbers):
             median(numbers), median(upper_half), numbers[-1])
 
 
-def load_csv(csv_path):
+def load_csv(csv_path: str) -> pd.DataFrame:
     """
     Reads a CSV file and returns its contents as a pandas DataFrame.
     """
     return pd.read_csv(csv_path)
 
 
-def is_quantitative(series):
+def is_quantitative(series: pd.Series) -> bool:
     """
     Returns True if the given pandas Series contains numeric data.
     Returns False otherwise.
@@ -77,7 +78,7 @@ def is_quantitative(series):
     return pd.api.types.is_numeric_dtype(series)
 
 
-def compute_mean(numbers):
+def compute_mean(numbers: list[float]) -> float:
     """
     Returns the mean (average) of a list of numbers.
     Assumes the list is non-empty.
@@ -85,7 +86,7 @@ def compute_mean(numbers):
     return total(numbers) / len(numbers)
 
 
-def compute_std(numbers, mean):
+def compute_std(numbers: list[float], mean: float) -> float:
     """
     Returns the standard deviation of a list of numbers.
 
@@ -103,7 +104,7 @@ def compute_std(numbers, mean):
     return variance ** 0.5
 
 
-def seven_number_summary(series):
+def seven_number_summary(series: pd.Series) -> dict[str, float]:
     """
     Computes the seven-number summary for a quantitative column:
     mean, standard deviation, minimum, first quartile (Q1),
@@ -117,6 +118,7 @@ def seven_number_summary(series):
     for v in series:
         values.append(v)
     values.sort()   # Sort values from least to greatest
+
     # Compute mean and standard deviation
     mean = compute_mean(values)
     std = compute_std(values, mean)
@@ -135,7 +137,7 @@ def seven_number_summary(series):
     }
 
 
-def categorical_summary(series):
+def categorical_summary(series: pd.Series) -> dict[object, int]:
     """
     Returns a dictionary counting how many times each unique value
     appears in the given pandas Series.
@@ -150,7 +152,9 @@ def categorical_summary(series):
     return counts
 
 
-def write_quantitative(file, column, summary):
+def write_quantitative(
+    file: object, column: str, summary: dict[str, float]
+) -> None:
     """
     Writes the seven-number summary for a quantitative variable
     to an open text file.
@@ -164,7 +168,9 @@ def write_quantitative(file, column, summary):
     file.write("\n")
 
 
-def write_categorical(file, column, counts):
+def write_categorical(
+    file: object, column: str, counts: dict[object, int]
+) -> None:
     """
     Writes the value counts for a categorical variable
     to an open text file.
@@ -178,7 +184,11 @@ def write_categorical(file, column, counts):
     file.write("\n")
 
 
-def summarize_dataframe(df, output_txt, variables_of_interest=None):
+def summarize_dataframe(
+    df: pd.DataFrame,
+    output_txt: str,
+    variables_of_interest: list[str] | None = None,
+) -> None:
     """
     Writes a summary of each variable in the DataFrame to a text file.
 
@@ -204,18 +214,17 @@ def summarize_dataframe(df, output_txt, variables_of_interest=None):
                 write_categorical(file, column, counts)
 
 
-def main():
+def main() -> None:
     """
     Loads the CSV file, generates summaries for each variable,
     and writes the results to a text file.
     """
-    input_csv = "Students Social Media Addiction.csv"
+    input_csv = "Project/Students Social Media Addiction.csv"
     output_txt = "variable_summary.txt"
     # Load dataset
     df = load_csv(input_csv)
     # Generate and write summaries
     summarize_dataframe(df, output_txt)
-
     print("Summary written to", output_txt)
 
 
