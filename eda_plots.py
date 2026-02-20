@@ -1,4 +1,6 @@
 """
+Kimberly Gu and Isabella Le
+Section AD & AG
 eda_plots.py
 
 This script performs exploratory data analysis (EDA) on the
