@@ -20,12 +20,17 @@ Evaluation Metrics:
 """
 
 import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 
 
-def get_features_and_target(
+# --------- RQ2 --------------
+def get_features_and_target_qr2(
         df: pd.DataFrame
 ) -> tuple[pd.DataFrame, pd.Series]:
     """
@@ -44,6 +49,17 @@ def get_features_and_target(
     return X, y
 
 
+# --------- RQ3 --------------
+def get_features_and_target_qr3(
+        df: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.Series]:
+
+    X = df[["Mental_Health_Score", "Sleep_Hours_Per_Night"]]
+    y = df["Addicted_Score"]
+    return X, y
+
+
+# ------ Shared Utilities -----------
 def split_data(
     X: pd.DataFrame,
     y: pd.Series
@@ -97,6 +113,52 @@ def evaluate_model(
 
     return mae, r2
 
+# ============================
+# PyTorch Model for RQ3
+# ============================
+
+class MLP(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Linear(2, 8),
+            nn.ReLU(),
+            nn.Linear(8, 1)
+        )
+
+    def forward(self, x):
+        return self.model(x)
+
+
+def train_pytorch_model(X_train, y_train, X_test, y_test):
+
+    X_train_tensor = torch.tensor(X_train.values, dtype=torch.float32)
+    y_train_tensor = torch.tensor(y_train.values, dtype=torch.float32).view(-1, 1)
+
+    X_test_tensor = torch.tensor(X_test.values, dtype=torch.float32)
+    y_test_tensor = torch.tensor(y_test.values, dtype=torch.float32).view(-1, 1)
+
+    model = MLP()
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+    # Fixed epochs (no hyperparameter tuning)
+    for _ in range(200):
+        optimizer.zero_grad()
+        outputs = model(X_train_tensor)
+        loss = criterion(outputs, y_train_tensor)
+        loss.backward()
+        optimizer.step()
+
+    model.eval()
+    with torch.no_grad():
+        predictions = model(X_test_tensor).numpy().flatten()
+
+    mae = mean_absolute_error(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
+
+    return mae, r2
+
 
 def main() -> None:
     """
@@ -105,19 +167,19 @@ def main() -> None:
     """
     # Read dataset inside main()
     df = pd.read_csv("Students Social Media Addiction.csv")
-
+    print("QR2: Predict Relationship Conflicts")
     # Prepare data
-    X, y = get_features_and_target(df)
-    X_train, X_test, y_train, y_test = split_data(X, y)
+    X2, y2 = get_features_and_target_qr2(df)
+    X2_train, X2_test, y2_train, y2_test = split_data(X2, y2)
 
     # Baseline: Linear Regression
     linear_model = LinearRegression()
     lin_mae, lin_r2 = evaluate_model(
         linear_model,
-        X_train,
-        y_train,
-        X_test,
-        y_test
+        X2_train,
+        y2_train,
+        X2_test,
+        y2_test
     )
 
     print("Baseline Model: Linear Regression")
@@ -136,10 +198,10 @@ def main() -> None:
         ridge_model = Ridge(alpha=alpha)
         mae, r2 = evaluate_model(
             ridge_model,
-            X_train,
-            y_train,
-            X_test,
-            y_test
+            X2_train,
+            y2_train,
+            X2_test,
+            y2_test
         )
 
         print(f"alpha={alpha}: MAE={mae:.4f}, R^2={r2:.4f}")
@@ -163,6 +225,46 @@ def main() -> None:
     else:
         print("Ridge regression did not clearly outperform the baseline model.")
         print("While Addicted_Score shows some predictive relationship, its predictive strength may be limited when used alone.")
+    print()
+
+    
+    # RQ3
+    print("RQ3: Predict Addiction Score")
+    X3, y3 = get_features_and_target_qr3(df)
+    X3_train, X3_test, y3_train, y3_test = split_data(X3, y3)
+
+    # Baseline Linear Regression
+    lin3 = LinearRegression()
+    lin3_mae, lin3_r2 = evaluate_model(
+        lin3,
+        X3_train,
+        y3_train,
+        X3_test,
+        y3_test
+    )
+
+    print("Baseline Linear Regression")
+    print(f"MAE: {lin3_mae:.4f}")
+    print(f"R^2: {lin3_r2:.4f}")
+    print()
+
+    # PyTorch MLP
+    mlp_mae, mlp_r2 = train_pytorch_model(
+        X3_train,
+        y3_train,
+        X3_test,
+        y3_test
+    )
+
+    print("PyTorch MLP")
+    print(f"MAE: {mlp_mae:.4f}")
+    print(f"R^2: {mlp_r2:.4f}\n")
+
+    print("Conclusion:")
+    if mlp_mae < lin3_mae and mlp_r2 > lin3_r2:
+        print("Neural network improved performance. Mental health and sleep provide predictive information.")
+    else:
+        print("Neural network did not clearly outperform baseline; predictive strength may be limited.")
 
 
 if __name__ == "__main__":
