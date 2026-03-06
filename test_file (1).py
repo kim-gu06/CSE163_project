@@ -1,0 +1,310 @@
+"""
+Isabella Le and Kimberly Gu
+CSE 163 Section AG & AD
+EDA-Data Processing
+
+Reads a CSV file and writes a summary of each variable to a text file.
+"""
+import pandas as pd
+
+
+def total(numbers: list[float]) -> float:
+    """
+    Takes in a number n (int) and returns the sum of the numbers from
+    0(inclusive) to n (inclusive). If n is negative, returns None.
+
+    parameter: list of floats
+
+    returns: float > the sum of the list of numbers
+    """
+    result = 0
+    for n in numbers:
+        result += n
+    return result
+
+
+def median(numbers: list[float]) -> float:
+    """
+    Given a list of numbers, returns the median as float or integer.
+    Assumptions:
+        - The list is sorted from least to greatest
+        - The list contains at least five numbers
+
+    parameter: number> list of floats > a list of sorted numbers
+
+    return: float > median
+    """
+    n = len(numbers)
+
+    result = None
+    if len(numbers) % 2 == 1:
+        result = numbers[n // 2]
+    else:
+        upper_num = numbers[n // 2]
+        lower_num = numbers[n // 2 - 1]
+        result = (upper_num + lower_num) / 2
+
+    return result
+
+
+def five_number_summary(
+    numbers: list[float]
+) -> tuple[float, float, float, float, float]:
+    """
+    Given a sorted list of numbers, returns a tuple of the five-number
+    summary: the minimum, first quartile, median, third quartile,
+    and maximum.
+
+    Assumptions:
+        - The list is sorted from least to greatest
+        - The list contains at least five numbers
+
+    parameter: number> list of floats > a list of sorted numbers
+
+    return: tuple > a tuple of five-number summary
+    """
+    n = len(numbers)
+
+    if n % 2 == 0:
+        lower_half = numbers[:n // 2]
+        upper_half = numbers[n // 2:]
+    else:
+        lower_half = numbers[:n // 2]
+        upper_half = numbers[n // 2 + 1:]
+
+    return (numbers[0], median(lower_half),
+            median(numbers), median(upper_half), numbers[-1])
+
+
+def load_csv(csv_path: str) -> pd.DataFrame:
+    """
+    Reads a CSV file and returns its contents as a pandas DataFrame.
+
+    Parameters:
+    csv_path: str > a string that leads to csv file
+
+    returns:
+    pandas dataframe
+    """
+
+    return pd.read_csv(csv_path, skiprows=1)
+
+
+def is_quantitative(series: pd.Series) -> bool:
+    """
+    Returns True if the given pandas Series contains numeric data.
+    Returns False otherwise.
+
+    parameters:
+    series: pandas series > a pandas series that contains numeric data
+
+    return:
+    boolean
+    """
+    return pd.api.types.is_numeric_dtype(series)
+
+
+def compute_mean(numbers: list[float]) -> float:
+    """
+    Returns the mean (average) of a list of numbers.
+    Assumes the list is non-empty.
+    """
+    return total(numbers) / len(numbers)
+
+
+def compute_std(numbers: list[float], mean: float) -> float:
+    """
+    Returns the standard deviation of a list of numbers.
+
+    Parameters:
+        numbers: list of numeric values >
+        mean: the mean of the list > float
+
+    return:
+        float: value of mean
+
+    Assumes the list is non-empty.
+    """
+    squared_diffs = []
+    for n in numbers:
+        squared_diffs.append((n - mean) ** 2)
+
+    variance = total(squared_diffs) / len(numbers)
+    return variance ** 0.5
+
+
+def seven_number_summary(series: pd.Series) -> dict[str, float]:
+    """
+    Computes the seven-number summary for a quantitative column:
+    mean, standard deviation, minimum, first quartile (Q1),
+    median, third quartile (Q3), and maximum.
+
+    Returns a dictionary mapping statistic names to values.
+
+    parameter:
+    series > pandas dataframe > seven number summary
+
+    return: dictonary[str, float] > dictionary of statistics to values
+
+    """
+
+    # Convert pandas Series to a Python list
+    values = []
+    for v in series:
+        values.append(v)
+    values.sort()   # Sort values from least to greatest
+
+    # Compute mean and standard deviation
+    mean = compute_mean(values)
+    std = compute_std(values, mean)
+    # Compute five-number summary (min, Q1, median, Q3, max)
+    min_val, q1, med, q3, max_val = five_number_summary(values)
+
+    # Return all seven statistics
+    return {
+        "Mean": mean,
+        "Standard Deviation": std,
+        "Minimum": min_val,
+        "Q1": q1,
+        "Median": med,
+        "Q3": q3,
+        "Maximum": max_val
+    }
+
+
+def categorical_summary(series: pd.Series) -> dict[object, int]:
+    """
+    Returns a dictionary counting how many times each unique value
+    appears in the given pandas Series.
+
+    parameter: series > pandas series
+
+    return: dict[object, int] > a dict of how many unique values appear
+    """
+    counts = {}
+    # Count occurrences of each value
+    for value in series:
+        if value in counts:
+            counts[value] += 1
+        else:
+            counts[value] = 1
+    return counts
+
+
+def write_quantitative(
+    file: object, column: str, summary: dict[str, float]
+) -> None:
+    """
+    Writes the seven-number summary for a quantitative variable
+    to an open text file.
+    """
+    # Write variable name
+    file.write("Variable: " + column + "\n")
+    # Write each statistic
+    for key in summary:
+        file.write(key + ": " + str(summary[key]) + "\n")
+    # Blank line after each variable for readability
+    file.write("\n")
+
+
+def write_categorical(
+    file: object, column: str, counts: dict[object, int]
+) -> None:
+    """
+    Writes the value counts for a categorical variable
+    to an open text file.
+    """
+    # Write variable name
+    file.write("Variable: " + column + "\n")
+    # Write each category and its count
+    for value in counts:
+        file.write(str(value) + ": " + str(counts[value]) + "\n")
+    # Blank line after each variable for readability
+    file.write("\n")
+
+
+def summarize_dataframe(
+    df: pd.DataFrame,
+    output_txt: str,
+    variables_of_interest: list[str] | None = None,
+) -> None:
+    """
+    Writes a summary of each variable in the DataFrame to a text file.
+
+    If variables_of_interest is None, all columns in the DataFrame
+    will be summarized. Otherwise, only the listed columns are used.
+
+    parameter:
+    df > pandas data frame> a df of csv file
+    output_text: str
+    variables of interest> list of strings or None
+
+    return: None type
+    """
+    # Use all columns if none are specified
+    if variables_of_interest is None:
+        variables_of_interest = list(df.columns)
+
+    # Open output file for writing
+    with open(output_txt, "w") as file:
+        file.write("VARIABLE SUMMARY REPORT\n\n")
+        # Process each selected column
+        for column in variables_of_interest:
+            series = df[column]
+
+            if is_quantitative(series):
+                summary = seven_number_summary(series)
+                write_quantitative(file, column, summary)
+            else:
+                counts = categorical_summary(series)
+                write_categorical(file, column, counts)
+
+
+def test(df) -> None:
+    '''
+    This function is used to test on a smaller set of sample
+    from our csv to ensure validity of code
+
+    parameter: df > a data frame of our csv file
+    '''
+    age_summary = seven_number_summary(df["Age"])
+    sleep_summary = seven_number_summary(df["Sleep_Hours_Per_Night"])
+    addicted_summary = seven_number_summary(df["Addicted_Score"])
+
+    # test to see if code gets minimum age for csv
+    assert (age_summary["Minimum"]) == 18.0
+
+    assert (age_summary["Maximum"]) == 23
+
+    assert (age_summary["Median"]) == 20.0
+
+    # assertion for sleep hours per night
+    assert (sleep_summary["Mean"]) == 6.3125
+
+    assert (sleep_summary["Minimum"]) == 4.5
+
+    # assertion for addiction to social media
+    assert (addicted_summary["Mean"]) == 6.25
+
+    # assert to check out data file has no missing
+    assert not df.isna().sum().sum() == 0
+
+
+def main() -> None:
+    """
+    Loads the CSV file, generates summaries for each variable,
+    and writes the results to a text file.
+    """
+    # Project/Students Social Media Addiction.csv
+    # '/Users/isabellale/Desktop/CSE 163/final project/test.csv'
+    input_csv = '/Users/isabellale/Desktop/CSE 163/final project/test.csv'
+    output_txt = "variable_summary.txt"
+    # Load dataset
+    df = load_csv(input_csv)
+    # Generate and write summaries
+    summarize_dataframe(df, output_txt)
+    print("Summary written to", output_txt)
+
+
+if __name__ == "__main__":
+    main()
