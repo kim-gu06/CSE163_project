@@ -18,7 +18,7 @@ def qr1() -> None:
     analyzes the average social media addiciton score by each country
     """
 
-    df = pd.read_csv('social_media_addiction.csv')
+    df = pd.read_csv('social_media.csv')
 
     # setting the theme
     sns.set_theme(style="darkgrid")
