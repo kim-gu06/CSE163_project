@@ -41,7 +41,7 @@ This script loads the dataset and saves the images automatically.
 This script trains and evaluates machine learning models for the research questions.
 The script prints model results and conclusions in the terminal. 
 
-- **EDA_Q3.py**
+- **Q3.py**
 This scripts runs and trains different machine learning models for research question 3.
 The script uses linear regression and neural network to see the results
 
@@ -78,7 +78,15 @@ ensuring our code was accurate
 6. Generate EDA Visualizations
    Run: python eda_plots.py
    This will produce two figures: addiction_vs_conflicts_bubble.png, mental_health_sleep_addiction_scatter.png
-8. Run machine learning model
+7. Run Code For Visualization
+   Run: QR1_PROJECT.PY
+   This will produce one visualization: Plots the mean average social media addiction scores for each country
+9. Run machine learning model
    Run: python qr2_ml.py
    This will print: linear regression results, ridge regression results
-9. 
+10. Run Machine Learning model
+   Run: python Q3:
+   This will print: Linear Regression Result, Visualization, and Neural Network Result
+11. Run Testing File
+    Run: test_file (1).py
+    This file will ensure our code is working as properly by using assert statements
