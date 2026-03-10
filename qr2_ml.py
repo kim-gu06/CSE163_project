@@ -21,7 +21,7 @@ from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 
-CSV_PATH: str = "Students Social Media Addiction.csv"
+CSV_PATH: str = "social_media.csv"
 
 
 def load_data(filename: str) -> pd.DataFrame:
