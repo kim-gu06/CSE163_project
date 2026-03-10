@@ -105,7 +105,7 @@ def main() -> None:
     """
     Loads dataset, creates plots and saves images.
     """
-    csv_path = "Students Social Media Addiction.csv"
+    csv_path = "social_media.csv"
     df = load_dataset(csv_path)
     # Set theme for aesthetics
     sns.set_theme(style="darkgrid")
