@@ -210,7 +210,7 @@ def main() -> None:
     prints results and visualizations
     """
     # Read dataset inside main()
-    df = load_data("Students Social Media Addiction.csv")
+    df = load_data("social_media.csv")
     x, y = get_features_and_target_qr3(df)
 
     x_train, x_test, y_train, y_test = split_data(x, y)
