@@ -297,7 +297,7 @@ def main() -> None:
     """
     # Project/Students Social Media Addiction.csv
     # '/Users/isabellale/Desktop/CSE 163/final project/test.csv'
-    input_csv = '/Users/isabellale/Desktop/CSE 163/final project/test.csv'
+    input_csv = 'social_media.csv'
     output_txt = "variable_summary.txt"
     # Load dataset
     df = load_csv(input_csv)
